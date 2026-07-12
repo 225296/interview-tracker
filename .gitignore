@@ -1,0 +1,9 @@
+# Never commit candidate data or generated trackers
+*.xlsx
+*.xlsm
+.interview_tool_config.json
+
+# Python
+__pycache__/
+*.pyc
+.DS_Store
