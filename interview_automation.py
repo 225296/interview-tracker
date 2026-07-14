@@ -233,6 +233,11 @@ def read_input(path):
             continue
         rows.append({c: (excel_row[lookup[c]].value if c in lookup else None)
                      for c in COLUMNS})
+
+    if not rows:
+        raise ValueError(
+            "No candidate rows found in this file. Make sure you've uploaded "
+            "the filled-in candidate sheet, not a blank template.")
     return rows
 
 

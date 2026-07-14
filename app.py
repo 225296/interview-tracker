@@ -19,7 +19,8 @@ import streamlit as st
 import interview_automation as engine
 
 DEFAULT_HR = ["Aaruni", "Kishor", "Vartika", "Garima", "George", "Musarat"]
-BRAND = "#2E6FA8"
+BRAND = "#A100FF"        # Accenture purple
+BRAND_DARK = "#7500C0"
 HR_COL = "HR interviewer"
 XLSX_MIME = ("application/vnd.openxmlformats-officedocument."
              "spreadsheetml.sheet")
@@ -31,31 +32,64 @@ st.set_page_config(page_title="Interview Tracker", page_icon="🗂",
 # Look & feel
 # --------------------------------------------------------------------------- #
 st.markdown(
-    """
+    f"""
     <style>
-      .block-container { padding-top: 1.6rem; max-width: 820px; }
-      .banner { background: linear-gradient(135deg,#1f4e78,#2e86c1);
-                color:#fff; padding: 26px 30px; border-radius: 16px;
-                margin-bottom: 22px; box-shadow: 0 8px 24px rgba(31,78,120,.22); }
-      .banner h1 { font-size: 27px; margin: 0; font-weight: 700; }
-      .banner p  { color:#d5e6f4; margin: 6px 0 0; font-size: 14.5px; }
+      .block-container {{ padding-top: 1.6rem; max-width: 820px; }}
+
+      /* --- hero banner --- */
+      .banner {{
+          position: relative; overflow: hidden;
+          background: linear-gradient(135deg, {BRAND} 0%, {BRAND_DARK} 100%);
+          color:#fff; padding: 30px 34px; border-radius: 18px;
+          margin-bottom: 24px; box-shadow: 0 10px 28px rgba(161,0,255,.28); }}
+      .banner::after {{
+          content: ">"; position: absolute; right: -6px; top: -54px;
+          font-size: 230px; font-weight: 800; line-height: 1;
+          color: rgba(255,255,255,.14); pointer-events: none; }}
+      .banner h1 {{ font-size: 28px; margin: 0; font-weight: 800;
+                    position: relative; z-index: 1; }}
+      .banner p  {{ color:#F0DCFF; margin: 6px 0 0; font-size: 14.5px;
+                    position: relative; z-index: 1; }}
+
+      /* --- left-accent panel titles --- */
+      .panel-title {{
+          border-left: 4px solid {BRAND}; padding-left: 12px;
+          font-size: 1.05rem; font-weight: 700; margin-bottom: 2px;
+          color: #26313D; }}
+
       /* card-like bordered containers */
-      div[data-testid="stVerticalBlockBorderWrapper"] {
-          border-radius: 14px; box-shadow: 0 1px 3px rgba(16,42,67,.06); }
-      /* buttons */
-      .stButton > button, .stDownloadButton > button {
-          width: 100%; border-radius: 10px; font-weight: 700; padding: .55rem 1rem; }
-      .stButton > button[kind="primary"] { font-size: 1.05rem; padding: .7rem; }
-      /* metric tiles */
-      div[data-testid="stMetric"] {
-          background:#f6f9fc; border:1px solid #e2ebf3; border-radius:12px;
-          padding:14px 16px; }
-      div[data-testid="stMetricValue"] { color:#1f4e78; }
-      section[data-testid="stFileUploaderDropzone"] { border-radius: 12px; }
+      div[data-testid="stVerticalBlockBorderWrapper"] {{
+          border-radius: 16px; box-shadow: 0 1px 3px rgba(161,0,255,.10); }}
+
+      /* --- buttons: purple gradient --- */
+      .stButton > button, .stDownloadButton > button {{
+          width: 100%; border-radius: 10px; font-weight: 700; padding: .55rem 1rem;
+          border: none; color: #fff;
+          background: linear-gradient(135deg, {BRAND}, {BRAND_DARK});
+          transition: filter .15s, box-shadow .15s; }}
+      .stButton > button:hover, .stDownloadButton > button:hover {{
+          filter: brightness(1.08);
+          box-shadow: 0 4px 14px rgba(161,0,255,.30); }}
+      .stButton > button:disabled {{
+          background: #E3E3E8 !important; color: #9AA0A6 !important; }}
+      .stButton > button[kind="primary"] {{ font-size: 1.05rem; padding: .7rem; }}
+
+      /* --- metric tiles --- */
+      div[data-testid="stMetric"] {{
+          background:#F6EBFF; border:1px solid #E4C6FF; border-radius:14px;
+          padding:14px 16px; }}
+      div[data-testid="stMetricValue"] {{ color:{BRAND_DARK}; font-weight:800; }}
+
+      section[data-testid="stFileUploaderDropzone"] {{ border-radius: 12px; }}
     </style>
     """,
     unsafe_allow_html=True,
 )
+
+
+def panel_title(text):
+    st.markdown(f'<div class="panel-title">{text}</div>', unsafe_allow_html=True)
+
 
 st.markdown(
     """<div class="banner">
@@ -95,7 +129,7 @@ def build_output(upload, names, run_date):
 # Inputs
 # --------------------------------------------------------------------------- #
 with st.container(border=True):
-    st.markdown("#### 👥 &nbsp;1 · HR interviewers")
+    panel_title("👥 &nbsp;1 · HR interviewers")
     st.caption("These become the POC options. Edit names, or use the ＋ row to "
                "add and the 🗑 to remove.")
     edited = st.data_editor(
@@ -111,13 +145,13 @@ with st.container(border=True):
 col_a, col_b = st.columns(2)
 with col_a:
     with st.container(border=True):
-        st.markdown("#### 📅 &nbsp;2 · Date")
+        panel_title("📅 &nbsp;2 · Date")
         run_date = st.date_input("Interview date", value=date.today(),
                                  help="Scheduled skill/final interviews are kept "
                                       "only if dated this day.")
 with col_b:
     with st.container(border=True):
-        st.markdown("#### 📁 &nbsp;3 · File")
+        panel_title("📁 &nbsp;3 · File")
         upload = st.file_uploader("Candidate Excel (.xlsx)",
                                   type=["xlsx", "xlsm"],
                                   label_visibility="collapsed")
@@ -176,14 +210,14 @@ if res:
     dist = stats["distribution"]
     totals = [d["total"] for d in dist]
 
-    st.markdown("##### Interviews per HR")
+    panel_title("Interviews per HR")
     chart_df = pd.DataFrame(
         {"HR": [d["hr"] for d in dist], "Interviews": totals}).set_index("HR")
     st.bar_chart(chart_df, horizontal=True, color=BRAND)
     if totals and max(totals) - min(totals) <= 1:
         st.caption("✓ Evenly balanced across HR (totals differ by at most one).")
 
-    st.markdown("##### Breakdown by skill")
+    panel_title("Breakdown by skill")
     matrix = {sk: [d["by_skill"].get(sk, 0) for d in dist]
               for sk in stats["skills"]}
     table = pd.DataFrame(matrix, index=[d["hr"] for d in dist])
